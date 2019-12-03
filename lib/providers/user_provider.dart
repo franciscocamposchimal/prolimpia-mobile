@@ -45,12 +45,12 @@ class UserProvider {
     final response = await http.get(url, headers: authorizationHeaders);
     print('Response status: ${response.statusCode}');
 
-    if (response.statusCode == 200) {
+    /*if (response.statusCode == 200) {
       final decodeData = json.decode(response.body);
       final currentUser = new CurrentUser.fromJson(decodeData);
       _prefs.user = currentUser;
       data['user'] = currentUser;
-    }
+    }*/
 
     data['status'] = response.statusCode;
     return data;
