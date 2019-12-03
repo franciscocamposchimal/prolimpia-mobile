@@ -7,7 +7,7 @@ import 'package:prolimpia_mobile/bloc/validators.dart';
 class LoginBloc with Validators {
   final _emailController = BehaviorSubject<String>();
   final _passwordController = BehaviorSubject<String>();
-  final _isLoadingController = BehaviorSubject<bool>();
+  final _isLoadingController = BehaviorSubject<String>();
   final _isLoginController = BehaviorSubject<bool>();
 
   //Recuperamos los datos del stream
@@ -16,7 +16,7 @@ class LoginBloc with Validators {
   Stream<String> get passwordStream =>
       _passwordController.stream.transform(validarPassword);
 
-  Stream<bool> get isLoadingStream => _isLoadingController.stream;
+  Stream<String> get isLoadingStream => _isLoadingController.stream;
   Stream<bool> get isLoginStream => _isLoginController.stream;
 
   //Observable combine
@@ -26,7 +26,7 @@ class LoginBloc with Validators {
   // Insertar valores al stream
   Function(String) get changeEmail => _emailController.sink.add;
   Function(String) get changePassword => _passwordController.sink.add;
-  void _setIsLoading(bool isLoading) => _isLoadingController.add(isLoading);
+  void _setIsLoading(String isLoading) => _isLoadingController.add(isLoading);
   void _setIsLogin(bool isLogin) => _isLoginController.add(isLogin);
 
   // Obtener el ultimo valor
@@ -38,14 +38,14 @@ class LoginBloc with Validators {
       _setIsLogin(true);
       final current = await UserProvider().login(email, password);
       if (current['status'] == 200) {
-        _setIsLoading(true);
+        _setIsLoading('OK');
       } else {
-        _setIsLoading(false);
+        _setIsLoading('UNAUTHORIZED');
         _setIsLogin(false);
       }
     } catch (e) {
       _isLoadingController.addError(e);
-      _setIsLoading(false);
+      _setIsLoading('ERROR');
     } finally {
       _setIsLogin(false);
     }
@@ -53,17 +53,32 @@ class LoginBloc with Validators {
 
   Future<void> checkToken() async {
     try {
-      print('BLOC TRY');
+      _setIsLoading('CHECK');
       final checkExpires = await UserProvider().check();
       print(' check ${checkExpires['status']}');
       if (checkExpires['status'] == 200) {
-        _setIsLoading(true);
+        _setIsLoading('OK');
       } else {
-        _setIsLoading(false);
+        _setIsLoading('UNAUTHORIZED');
       }
     } catch (e) {
       _isLoadingController.addError(e);
-      _setIsLoading(false);
+      _setIsLoading('ERROR');
+    }
+  }
+
+  Future<void> logOut() async {
+    try {
+      _setIsLoading('LOGOUT');
+      final killToken = await UserProvider().logout();
+      if (killToken['status'] == 200 || killToken['status'] == 500) {
+        _setIsLoading('UNAUTHORIZED');
+      } else {
+        _setIsLoading('OK');
+      }
+    } catch (e) {
+      _isLoadingController.addError(e);
+      _setIsLoading('ERROR');
     }
   }
 
@@ -79,6 +94,5 @@ class LoginBloc with Validators {
 
     await _isLoginController.drain();
     _isLoginController?.close();
-
   }
 }

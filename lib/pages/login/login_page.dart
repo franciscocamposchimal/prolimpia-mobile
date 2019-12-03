@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:after_init/after_init.dart';
 
 import 'package:prolimpia_mobile/bloc/provider.dart';
 import 'package:prolimpia_mobile/widgets/custom_widgets.dart';
@@ -9,16 +8,7 @@ class LoginPage extends StatefulWidget {
   _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> with AfterInitMixin<LoginPage> {
-  @override
-  void didInitState() {
-    Provider.authBloc(context).checkToken().then((value) {
-      print('completed with value');
-    }, onError: (error) {
-      print('completed with error $error');
-    });
-  }
-
+class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
