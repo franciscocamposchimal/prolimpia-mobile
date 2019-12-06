@@ -19,7 +19,9 @@ class MyApp extends StatelessWidget {
         title: 'PROLIMPIA',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          primarySwatch: Colors.blue,
+          brightness: Brightness.light,
+          primaryColor: Color(0xff03a9f4),
+          accentColor:  Color(0xfffdd835),
         ),
         home: MainPage(),
       ),

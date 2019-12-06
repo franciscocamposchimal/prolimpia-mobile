@@ -93,15 +93,23 @@ class Location {
 }
 
 class Data {
+  String nombre;
+  int zona;
+  int ruta;
+  int saldoAnterior;
   int pago;
   int efectivo;
   int cambio;
   String tipoPago;
   String mac;
 
-  Data({this.pago, this.efectivo, this.cambio, this.tipoPago, this.mac});
+  Data({this.nombre, this.zona, this.ruta, this.saldoAnterior, this.pago, this.efectivo, this.cambio, this.tipoPago, this.mac});
 
   Data.fromJson(Map<String, dynamic> json) {
+    nombre = json['nombre'];
+    zona = json['zona'];
+    ruta = json['ruta'];
+    saldoAnterior = json['saldo_anterior'];
     pago = json['pago'];
     efectivo = json['efectivo'];
     cambio = json['cambio'];
@@ -111,6 +119,10 @@ class Data {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['nombre'] = this.nombre;
+    data['zona'] = this.zona;
+    data['ruta'] = this.ruta;
+    data['saldo_anterior'] = this.saldoAnterior;
     data['pago'] = this.pago;
     data['efectivo'] = this.efectivo;
     data['cambio'] = this.cambio;

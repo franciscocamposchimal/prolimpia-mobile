@@ -89,10 +89,13 @@ class UserProvider {
     if (response.statusCode == 200) {
       final decodeData = json.decode(response.body);
       final collectUser = new Collect.fromJson(decodeData);
+      data['action'] = 'SUCCESS';
       data['body'] = collectUser;
+      print(data);
       return data;
     } else {
       data['body'] = null;
+      print(data);
       return data;
     }
   }

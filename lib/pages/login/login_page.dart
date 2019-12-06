@@ -24,7 +24,6 @@ class _LoginPageState extends State<LoginPage> {
   Widget _loginForm(BuildContext context) {
     final authBloc = Provider.authBloc(context);
     final size = MediaQuery.of(context).size;
-
     return SingleChildScrollView(
       child: Column(
         children: <Widget>[
@@ -75,7 +74,7 @@ class _LoginPageState extends State<LoginPage> {
             child: TextField(
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
-                icon: Icon(Icons.alternate_email, color: Colors.deepPurple),
+                icon: Icon(Icons.alternate_email, color: Theme.of(context).primaryColor),
                 hintText: 'ejemplo@correo.com',
                 labelText: 'Correo electrónico',
                 counterText: snapshot.data,
@@ -96,7 +95,7 @@ class _LoginPageState extends State<LoginPage> {
             child: TextField(
                 obscureText: true,
                 decoration: InputDecoration(
-                    icon: Icon(Icons.lock_outline, color: Colors.deepPurple),
+                    icon: Icon(Icons.lock_outline, color: Theme.of(context).primaryColor),
                     labelText: 'Contraseña',
                     counterText: snapshot.data,
                     errorText: snapshot.error),
@@ -129,7 +128,7 @@ class _LoginPageState extends State<LoginPage> {
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
         elevation: 10.0,
-        color: Colors.deepPurple,
+        color: Theme.of(context).primaryColor,
         textColor: Colors.white,
         onPressed: snapshot.hasData ? () async => await bloc.logIn() : null);
   }
