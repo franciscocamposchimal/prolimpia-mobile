@@ -3,6 +3,7 @@ import 'package:after_init/after_init.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 import 'package:prolimpia_mobile/bloc/provider.dart';
+import 'package:prolimpia_mobile/pages/search_delegate.dart';
 //import 'package:prolimpia_mobile/models/collect_model.dart';
 import 'package:prolimpia_mobile/widgets/dash_grid.dart';
 
@@ -50,6 +51,15 @@ class _HomePageState extends State<HomePage> with AfterInitMixin<HomePage> {
                     ],
                   );
           }),
+         floatingActionButton: FloatingActionButton(
+           child: Icon(Icons.search),
+           onPressed: (){
+             showSearch(
+               context: context,
+               delegate: DataSearch()
+             );
+           },
+         ), 
     );
   }
 

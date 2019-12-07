@@ -74,7 +74,8 @@ class _LoginPageState extends State<LoginPage> {
             child: TextField(
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
-                icon: Icon(Icons.alternate_email, color: Theme.of(context).primaryColor),
+                icon: Icon(Icons.alternate_email,
+                    color: Theme.of(context).primaryColor),
                 hintText: 'ejemplo@correo.com',
                 labelText: 'Correo electrónico',
                 counterText: snapshot.data,
@@ -95,7 +96,8 @@ class _LoginPageState extends State<LoginPage> {
             child: TextField(
                 obscureText: true,
                 decoration: InputDecoration(
-                    icon: Icon(Icons.lock_outline, color: Theme.of(context).primaryColor),
+                    icon: Icon(Icons.lock_outline,
+                        color: Theme.of(context).primaryColor),
                     labelText: 'Contraseña',
                     counterText: snapshot.data,
                     errorText: snapshot.error),
@@ -130,6 +132,12 @@ class _LoginPageState extends State<LoginPage> {
         elevation: 10.0,
         color: Theme.of(context).primaryColor,
         textColor: Colors.white,
-        onPressed: snapshot.hasData ? () async => await bloc.logIn() : null);
+        onPressed:
+            snapshot.hasData ? () async => await _hideAndSeek(bloc) : null);
+  }
+
+  _hideAndSeek(LoginBloc bloc) async {
+    FocusScope.of(context).requestFocus(FocusNode());
+    bloc.logIn();
   }
 }
