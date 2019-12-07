@@ -39,15 +39,20 @@ class LoginBloc with Validators {
   Future<void> logIn() async {
     try {
       _setIsLogin(true);
+      print("LOGIN TRUE");
       final current = await UserProvider().login(email, password);
       if (current['status'] == 200) {
+        print("LOGIN OK");
         _setIsLoading('OK');
       } else {
+        print("LOGIN UNAUTHORIZED");
         _setIsLoading('UNAUTHORIZED');
         _setIsLogin(false);
       }
     } catch (e) {
       _isLoadingController.addError(e);
+      print("LOGIN ERROR");
+      print('$e');
       _setIsLoading('ERROR');
     } finally {
       _setIsLogin(false);

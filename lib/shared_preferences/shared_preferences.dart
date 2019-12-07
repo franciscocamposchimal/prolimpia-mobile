@@ -20,7 +20,11 @@ class PreferenciasUsuario {
 
   // GET y SET de la última página
   get user {
-    final getUserString = _prefs.getString('user') ?? '';
+    final getUserString = _prefs.getString('user') ?? null;
+    //print('PREFS $getUserString');
+    if(getUserString == null){
+      return null;
+    }
     final getUser = CurrentUser.fromJson(json.decode(getUserString));
     return getUser;
   }

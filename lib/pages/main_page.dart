@@ -11,7 +11,7 @@ class MainPage extends StatefulWidget {
   _MainPageState createState() => _MainPageState();
 }
 
-class _MainPageState extends State<MainPage> with AfterInitMixin<MainPage>{
+class _MainPageState extends State<MainPage> with AfterInitMixin<MainPage> {
   @override
   void initState() {
     super.initState();
@@ -32,7 +32,9 @@ class _MainPageState extends State<MainPage> with AfterInitMixin<MainPage>{
     return StreamBuilder(
       stream: authBloc.isLoadingStream,
       builder: (BuildContext ctx, AsyncSnapshot<String> snapshot) {
-        return (!snapshot.hasData || snapshot.data == 'UNAUTHORIZED')
+        return (!snapshot.hasData ||
+                snapshot.data == 'UNAUTHORIZED' ||
+                snapshot.data == 'ERROR')
             ? LoginPage()
             : (snapshot.data == 'OK') ? HomePage() : SplashPage();
       },
