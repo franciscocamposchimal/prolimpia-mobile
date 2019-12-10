@@ -55,6 +55,9 @@ class PersonProvider {
         decodeData.forEach((item) {
           final pago = Payment.fromJson(item);
           pagos.add(pago);
+          /*for (var i = 0; i < 15; i++) {
+            pagos.add(pago);
+          }*/
         });
       }
       data['action'] = 'SUCCESS';
