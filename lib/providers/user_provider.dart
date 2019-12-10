@@ -8,8 +8,8 @@ import 'package:prolimpia_mobile/shared_preferences/shared_preferences.dart';
 
 class UserProvider {
   final _prefs = new PreferenciasUsuario();
-  //String _url = 'http://192.168.100.199:8000/api/users';
-  String _url = 'http://prolimpia.duckdns.org:8080/prolimpia/public/api/users';
+  String _url = 'http://192.168.100.199:8000/api/users';
+  //String _url = 'http://prolimpia.duckdns.org:8080/prolimpia/public/api/users';
 
   Future<Map<String, dynamic>> login(String email, String pass) async {
     print('LOGIN HTTP');

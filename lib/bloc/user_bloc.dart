@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:prolimpia_mobile/providers/person_provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'package:prolimpia_mobile/providers/user_provider.dart';
@@ -10,6 +11,7 @@ class LoginBloc with Validators {
   final _isLoadingController = BehaviorSubject<String>();
   final _isLoginController = BehaviorSubject<bool>();
   final _collectController = BehaviorSubject<Map<String, dynamic>>();
+  final _pagosController = BehaviorSubject<Map<String, dynamic>>();
 
   //Recuperamos los datos del stream
   Stream<String> get emailStream =>
@@ -20,6 +22,7 @@ class LoginBloc with Validators {
   Stream<String> get isLoadingStream => _isLoadingController.stream;
   Stream<bool> get isLoginStream => _isLoginController.stream;
   Stream<Map<String, dynamic>> get collectStream => _collectController.stream;
+  Stream<Map<String, dynamic>> get pagosStream => _pagosController.stream;
 
   //Observable combine
   Stream<bool> get formValidStream =>
@@ -30,7 +33,9 @@ class LoginBloc with Validators {
   Function(String) get changePassword => _passwordController.sink.add;
   void _setIsLoading(String isLoading) => _isLoadingController.add(isLoading);
   void _setIsLogin(bool isLogin) => _isLoginController.add(isLogin);
-  void _setCollect(Map<String,dynamic> collect) => _collectController.add(collect);
+  void _setCollect(Map<String, dynamic> collect) =>
+      _collectController.add(collect);
+  void _setPago(Map<String, dynamic> pago) => _pagosController.add(pago);
 
   // Obtener el ultimo valor
   String get email => _emailController.value;
@@ -39,20 +44,20 @@ class LoginBloc with Validators {
   Future<void> logIn() async {
     try {
       _setIsLogin(true);
-      print("LOGIN TRUE");
+      //print("LOGIN TRUE");
       final current = await UserProvider().login(email, password);
       if (current['status'] == 200) {
-        print("LOGIN OK");
+        //print("LOGIN OK");
         _setIsLoading('OK');
       } else {
-        print("LOGIN UNAUTHORIZED");
+        //print("LOGIN UNAUTHORIZED");
         _setIsLoading('UNAUTHORIZED');
         _setIsLogin(false);
       }
     } catch (e) {
       _isLoadingController.addError(e);
-      print("LOGIN ERROR");
-      print('$e');
+      //print("LOGIN ERROR");
+      //print('$e');
       _setIsLoading('ERROR');
     } finally {
       _setIsLogin(false);
@@ -63,7 +68,7 @@ class LoginBloc with Validators {
     try {
       _setIsLoading('CHECK');
       final checkExpires = await UserProvider().check();
-      print(' check ${checkExpires['status']}');
+      //print(' check ${checkExpires['status']}');
       if (checkExpires['status'] == 200) {
         _setIsLoading('OK');
       } else {
@@ -91,7 +96,7 @@ class LoginBloc with Validators {
   }
 
   Future<void> getCollect() async {
-    final data = { 'action' : ''};
+    final data = {'action': ''};
     try {
       data['action'] = 'GET';
       _setCollect(data);
@@ -103,9 +108,28 @@ class LoginBloc with Validators {
         _setCollect(data);
       }
     } catch (e) {
-      _isLoadingController.addError(e);
+      _collectController.addError(e);
       data['action'] = 'ERROR';
       _setCollect(data);
+    }
+  }
+
+  Future<void> getPago(String id) async {
+    final data = {'action': ''};
+    try {
+      data['action'] = 'GET';
+      _setPago(data);
+      final payments = await PersonProvider().getOne(id);
+      if (payments['status'] == 200) {
+        _setPago(payments);
+      } else {
+        data['action'] = 'UNAUTHORIZED';
+        _setPago(data);
+      }
+    } catch (e) {
+      _pagosController.addError(e);
+      data['action'] = 'ERROR';
+      _setPago(data);
     }
   }
 
@@ -121,8 +145,11 @@ class LoginBloc with Validators {
 
     await _isLoginController.drain();
     _isLoginController?.close();
-        
+
     await _collectController.drain();
     _collectController?.close();
+
+    await _pagosController.drain();
+    _pagosController?.close();
   }
 }

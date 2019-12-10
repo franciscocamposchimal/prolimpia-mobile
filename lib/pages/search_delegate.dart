@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prolimpia_mobile/models/person_model.dart';
+import 'package:prolimpia_mobile/pages/collect_page.dart';
 import 'package:prolimpia_mobile/providers/person_provider.dart';
 
 class DataSearch extends SearchDelegate {
@@ -57,22 +58,45 @@ class DataSearch extends SearchDelegate {
                 final Person person = persons[index];
                 return ListTile(
                   leading: Icon(Icons.account_circle),
-                  title: Text('${person.usrNombre}'),
+                  title: Text(
+                    '${person.usrNombre}',
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   subtitle: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Text(person.usrDomici.length > 20
-                          ? '${person.usrDomici.substring(0, 20)}...'
-                          : '${person.usrDomici}'),
-                      SizedBox(width: 20.0),
                       Text(
-                        'Adeudo: ',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        person.usrDomici.length > 15
+                            ? '${person.usrDomici.substring(0, 15)}...'
+                            : '${person.usrDomici}',
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      Text('\$ ${person.usrTotal}')
+                      Row(
+                        children: <Widget>[
+                          Text(
+                            'Adeudo: ',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            '\$ ${person.usrTotal}',
+                            overflow: TextOverflow.ellipsis,
+                          )
+                        ],
+                      ),
                     ],
                   ),
-                  trailing: Text('${person.usrNumcon}'),
-                  onTap: () {},
+                  trailing: Text(
+                    '${person.usrNumcon}',
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CollectPage(person: person),
+                        ));
+                  },
                 );
               },
             );

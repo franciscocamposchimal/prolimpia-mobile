@@ -9,20 +9,34 @@ List<Widget> dasboardGrid(Collect collect) {
         padding: const EdgeInsets.all(24.0),
         child: ListTile(
           leading: Icon(Icons.monetization_on),
-          title: Text('${item.data.nombre}'),
+          title: Text(
+            '${item.data.nombre}',
+            overflow: TextOverflow.ellipsis,
+          ),
           subtitle: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Text(
-                'Pago: ',
-                style: TextStyle(fontWeight: FontWeight.bold),
+              Row(
+                children: <Widget>[
+                  Text(
+                    'Pago: ',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Text('\$ ${item.data.pago}'),
+                ],
               ),
-              Text('\$ ${item.data.pago}'),
-              SizedBox(width: 20.0),
-              Text(
-                'tipo de pago: ',
-                style: TextStyle(fontWeight: FontWeight.bold),
+              Row(
+                children: <Widget>[
+                  Text(
+                    'tipo: ',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    '${item.data.tipoPago}',
+                    overflow: TextOverflow.ellipsis,
+                  )
+                ],
               ),
-              Text('${item.data.tipoPago}')
             ],
           ),
           trailing: Icon(Icons.keyboard_arrow_right),

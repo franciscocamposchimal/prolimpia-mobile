@@ -3,6 +3,7 @@ import 'package:after_init/after_init.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 import 'package:prolimpia_mobile/bloc/provider.dart';
+import 'package:prolimpia_mobile/models/collect_model.dart';
 import 'package:prolimpia_mobile/pages/search_delegate.dart';
 //import 'package:prolimpia_mobile/models/collect_model.dart';
 import 'package:prolimpia_mobile/widgets/dash_grid.dart';
@@ -41,26 +42,29 @@ class _HomePageState extends State<HomePage> with AfterInitMixin<HomePage> {
                     padding:
                         EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                     children: dasboardGrid(snapshot.data['body']),
-                    staggeredTiles: [
-                      //Line 2 para una sola linea, 110 height
-                      StaggeredTile.extent(2, 110.0),
-                      StaggeredTile.extent(1, 180.0),
-                      StaggeredTile.extent(1, 180.0),
-                      StaggeredTile.extent(2, 110.0),
-                      StaggeredTile.extent(2, 110.0),
-                    ],
+                    staggeredTiles: _staggeds(snapshot.data['body']),
                   );
           }),
-         floatingActionButton: FloatingActionButton(
-           child: Icon(Icons.search),
-           onPressed: (){
-             showSearch(
-               context: context,
-               delegate: DataSearch()
-             );
-           },
-         ), 
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.search),
+        onPressed: () {
+          showSearch(context: context, delegate: DataSearch());
+        },
+      ),
     );
+  }
+
+  List<StaggeredTile> _staggeds(Collect collect) {
+    var staggeds = [
+      StaggeredTile.fit(2),
+      StaggeredTile.fit(1),
+      StaggeredTile.fit(1),
+    ];
+    final collectsItem = collect.todayCollects;
+    for (final _ in collectsItem) {
+      staggeds.add(StaggeredTile.fit(2));
+    }
+    return staggeds;
   }
 
   Widget _appBar(LoginBloc bloc, Color primary) {
@@ -109,7 +113,7 @@ class _HomePageState extends State<HomePage> with AfterInitMixin<HomePage> {
 
   Widget _getOut(LoginBloc bloc) {
     return FlatButton.icon(
-      label: Text('Log out',
+      label: Text('Salir',
           style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w700,

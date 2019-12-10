@@ -17,7 +17,7 @@ class SplashPage extends StatelessWidget {
                 ),
                 SizedBox(height: 10.0),
                 Text(
-                  "Loading...",
+                  "Cargando...",
                   style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w400,

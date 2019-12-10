@@ -1,5 +1,5 @@
 class Person {
-  int usrNumcon;
+  String usrNumcon;
   String usrNombre;
   String usrDomici;
   int usrZona;
@@ -49,7 +49,7 @@ class Person {
       this.telefono});
 
   Person.fromJson(Map<String, dynamic> json) {
-    usrNumcon = json['USR_NUMCON'];
+    usrNumcon = json['USR_NUMCON'].toString();
     usrNombre = json['USR_NOMBRE'];
     usrDomici = json['USR_DOMICI'];
     usrZona= json['USR_ZONA'];
