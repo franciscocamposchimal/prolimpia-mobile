@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:prolimpia_mobile/providers/person_provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'package:prolimpia_mobile/providers/user_provider.dart';
@@ -11,7 +10,6 @@ class LoginBloc with Validators {
   final _isLoadingController = BehaviorSubject<String>();
   final _isLoginController = BehaviorSubject<bool>();
   final _collectController = BehaviorSubject<Map<String, dynamic>>();
-  final _pagosController = BehaviorSubject<Map<String, dynamic>>();
 
   //Recuperamos los datos del stream
   Stream<String> get emailStream =>
@@ -22,7 +20,6 @@ class LoginBloc with Validators {
   Stream<String> get isLoadingStream => _isLoadingController.stream;
   Stream<bool> get isLoginStream => _isLoginController.stream;
   Stream<Map<String, dynamic>> get collectStream => _collectController.stream;
-  Stream<Map<String, dynamic>> get pagosStream => _pagosController.stream;
 
   //Observable combine
   Stream<bool> get formValidStream =>
@@ -35,7 +32,6 @@ class LoginBloc with Validators {
   void _setIsLogin(bool isLogin) => _isLoginController.add(isLogin);
   void _setCollect(Map<String, dynamic> collect) =>
       _collectController.add(collect);
-  void _setPago(Map<String, dynamic> pago) => _pagosController.add(pago);
 
   // Obtener el ultimo valor
   String get email => _emailController.value;
@@ -114,25 +110,6 @@ class LoginBloc with Validators {
     }
   }
 
-  Future<void> getPago(String id) async {
-    final data = {'action': ''};
-    try {
-      data['action'] = 'GET';
-      _setPago(data);
-      final payments = await PersonProvider().getOne(id);
-      if (payments['status'] == 200) {
-        _setPago(payments);
-      } else {
-        data['action'] = 'UNAUTHORIZED';
-        _setPago(data);
-      }
-    } catch (e) {
-      _pagosController.addError(e);
-      data['action'] = 'ERROR';
-      _setPago(data);
-    }
-  }
-
   dispose() async {
     await _emailController.drain();
     _emailController?.close();
@@ -148,8 +125,5 @@ class LoginBloc with Validators {
 
     await _collectController.drain();
     _collectController?.close();
-
-    await _pagosController.drain();
-    _pagosController?.close();
   }
 }

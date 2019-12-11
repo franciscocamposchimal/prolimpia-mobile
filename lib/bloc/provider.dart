@@ -3,8 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:prolimpia_mobile/bloc/user_bloc.dart';
 export 'package:prolimpia_mobile/bloc/user_bloc.dart';
 
+import 'package:prolimpia_mobile/bloc/person_bloc.dart';
+export 'package:prolimpia_mobile/bloc/person_bloc.dart';
+
 class Provider extends InheritedWidget {
   final loginBloc = new LoginBloc();
+  final personBloc = new PersonBloc();
 
   static Provider _instancia;
 
@@ -23,5 +27,10 @@ class Provider extends InheritedWidget {
   static LoginBloc authBloc(BuildContext context) {
     return (context.inheritFromWidgetOfExactType(Provider) as Provider)
         .loginBloc;
+  }
+
+  static PersonBloc personsBloc(BuildContext context) {
+    return (context.inheritFromWidgetOfExactType(Provider) as Provider)
+        .personBloc;
   }
 }

@@ -48,6 +48,7 @@ class DataSearch extends SearchDelegate {
           if (!snapshot.hasData || snapshot.data.isEmpty) {
             return Center(child: CircularProgressIndicator());
           } else {
+            print(snapshot.data);
             final List<Person> persons = snapshot.data;
             return ListView.separated(
               separatorBuilder: (context, index) => Divider(

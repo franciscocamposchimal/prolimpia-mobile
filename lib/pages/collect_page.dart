@@ -18,7 +18,8 @@ class _CollectPageState extends State<CollectPage>
     with AfterInitMixin<CollectPage> {
   @override
   void didInitState() {
-    Provider.authBloc(context).getPago(widget.person.usrNumcon).then((value) {
+    Provider.personsBloc(context).getPago(widget.person.usrNumcon).then(
+        (value) {
       print('get payment complete');
     }, onError: (error) {
       print('get payment error $error');
@@ -27,7 +28,10 @@ class _CollectPageState extends State<CollectPage>
 
   @override
   Widget build(BuildContext context) {
-    final authBloc = Provider.authBloc(context);
+    final personBloc = Provider.personsBloc(context);
+    personBloc
+        .changePagoInput({'pago': '0', 'adeudo': '${widget.person.usrTotal}'});
+    personBloc.changeCambio({'recibido': '0', 'pago': '0'});
     return Scaffold(
       resizeToAvoidBottomPadding: false,
       appBar: _appBar(context),
@@ -45,15 +49,15 @@ class _CollectPageState extends State<CollectPage>
                 ),
               ),
             ),
-            _paymentItems(authBloc),
+            _paymentItems(personBloc),
           ],
         ),
       ),
-      bottomNavigationBar: _bottomApp(),
+      bottomNavigationBar: _bottomApp(personBloc),
     );
   }
 
-  Widget _bottomApp() {
+  Widget _bottomApp(PersonBloc bloc) {
     return BottomAppBar(
       elevation: 5.0,
       child: Container(
@@ -68,7 +72,7 @@ class _CollectPageState extends State<CollectPage>
                   borderRadius: BorderRadius.circular(0.0)),
               borderSide: BorderSide(color: Color(0xFF015FFF), width: 1.0),
               onPressed: () async {
-                await _formDialog(context);
+                await _formDialog(context, bloc);
               },
               child: Text("PAGAR"),
             )
@@ -78,8 +82,7 @@ class _CollectPageState extends State<CollectPage>
     );
   }
 
-  Future _formDialog(BuildContext context) async {
-    var _pago = 0;
+  Future _formDialog(BuildContext context, PersonBloc bloc) async {
     return await showDialog(
         barrierDismissible: false,
         context: context,
@@ -92,48 +95,71 @@ class _CollectPageState extends State<CollectPage>
                 children: <Widget>[
                   Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: TextField(
-                      autofocus: true,
-                      keyboardType: TextInputType.number,
-                      textAlign: TextAlign.center,
-                      decoration:
-                          InputDecoration(labelText: 'Pago', hintText: '0.00'),
-                      onChanged: (val) {
-                        var value = int.parse(val);
-                        var total = int.parse('${widget.person.usrTotal}');
-                        final totalBool = total != 0 ? true : false;
-                        if (value > 0 && value < total && totalBool) {
-                          _pago = total - value;
-                          setState(() {});
-                        }
+                    child: StreamBuilder(
+                        stream: bloc.pagoInputStream,
+                        builder: (context, snapshot) {
+                          return TextField(
+                            autofocus: true,
+                            keyboardType: TextInputType.number,
+                            textAlign: TextAlign.center,
+                            decoration: InputDecoration(
+                                prefixIcon: Icon(Icons.attach_money),
+                                labelText: 'Pago',
+                                hintText: '0.00',
+                                errorText: snapshot.error),
+                            onChanged: (val) {
+                              print(bloc.cambio['recibido']);
 
-                        print(_pago);
-                      },
-                    ),
+                              if (int.parse(bloc.cambio['recibido']) != 0) {
+                                bloc.changeCambio({
+                                  'recibido': bloc.cambio['recibido'],
+                                  'pago': val
+                                });
+                              }
+                              bloc.changePagoInput({
+                                'pago': val,
+                                'adeudo': '${widget.person.usrTotal}'
+                              });
+                            },
+                          );
+                        }),
                   ),
                   Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: TextField(
-                      keyboardType: TextInputType.number,
-                      textAlign: TextAlign.center,
-                      decoration: InputDecoration(
-                          labelText: 'Recibí', hintText: '0.00'),
-                      onChanged: (val) {
-                        print(val);
-                      },
-                    ),
+                    child: StreamBuilder(
+                        stream: bloc.cambioStream,
+                        builder: (context, snapshot) {
+                          return TextField(
+                            //enabled: false,
+                            keyboardType: TextInputType.number,
+                            textAlign: TextAlign.center,
+                            decoration: InputDecoration(
+                                prefixIcon: Icon(Icons.attach_money),
+                                labelText: 'Recibí',
+                                hintText: '0.00',
+                                errorText: snapshot.error),
+                            onChanged: (val) {
+                              bloc.changeCambio({
+                                'recibido': val,
+                                'pago': '${bloc.pagoInput['pago']}'
+                              });
+                            },
+                          );
+                        }),
                   ),
                   Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: TextField(
-                      enabled: false,
-                      keyboardType: TextInputType.number,
-                      textAlign: TextAlign.center,
-                      decoration: InputDecoration(
-                          labelText: 'Cambio', hintText: '0.00'),
-                      onChanged: (val) {
-                        print(val);
-                      },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: <Widget>[
+                        StreamBuilder(
+                            stream: bloc.cambioStream,
+                            builder: (context, snapshot) {
+                              print(snapshot.data);
+                              return Text(
+                                  'Cambio Total: \$ ${snapshot.hasData ? snapshot.data : 0}');
+                            }),
+                      ],
                     ),
                   ),
                   SizedBox(height: 10.0),
@@ -141,7 +167,14 @@ class _CollectPageState extends State<CollectPage>
                     padding: EdgeInsets.all(8.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
-                      children: <Widget>[Text('Adeudo final: \$ $_pago')],
+                      children: <Widget>[
+                        StreamBuilder(
+                            stream: bloc.pagoInputStream,
+                            builder: (context, snapshot) {
+                              return Text(
+                                  'Adeudo final: \$ ${snapshot.hasData ? snapshot.data : widget.person.usrTotal}');
+                            })
+                      ],
                     ),
                   )
                 ],
@@ -183,7 +216,7 @@ class _CollectPageState extends State<CollectPage>
     );
   }
 
-  Widget _paymentItems(LoginBloc bloc) {
+  Widget _paymentItems(PersonBloc bloc) {
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
       child: Container(
