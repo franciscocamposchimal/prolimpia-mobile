@@ -67,13 +67,105 @@ class _CollectPageState extends State<CollectPage>
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(0.0)),
               borderSide: BorderSide(color: Color(0xFF015FFF), width: 1.0),
-              onPressed: () {},
+              onPressed: () async {
+                await _formDialog(context);
+              },
               child: Text("PAGAR"),
             )
           ],
         ),
       ),
     );
+  }
+
+  Future _formDialog(BuildContext context) async {
+    var _pago = 0;
+    return await showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Total a pagar: \$ ${widget.person.usrTotal}'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: TextField(
+                      autofocus: true,
+                      keyboardType: TextInputType.number,
+                      textAlign: TextAlign.center,
+                      decoration:
+                          InputDecoration(labelText: 'Pago', hintText: '0.00'),
+                      onChanged: (val) {
+                        var value = int.parse(val);
+                        var total = int.parse('${widget.person.usrTotal}');
+                        final totalBool = total != 0 ? true : false;
+                        if (value > 0 && value < total && totalBool) {
+                          _pago = total - value;
+                          setState(() {});
+                        }
+
+                        print(_pago);
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: TextField(
+                      keyboardType: TextInputType.number,
+                      textAlign: TextAlign.center,
+                      decoration: InputDecoration(
+                          labelText: 'Recibí', hintText: '0.00'),
+                      onChanged: (val) {
+                        print(val);
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: TextField(
+                      enabled: false,
+                      keyboardType: TextInputType.number,
+                      textAlign: TextAlign.center,
+                      decoration: InputDecoration(
+                          labelText: 'Cambio', hintText: '0.00'),
+                      onChanged: (val) {
+                        print(val);
+                      },
+                    ),
+                  ),
+                  SizedBox(height: 10.0),
+                  Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: <Widget>[Text('Adeudo final: \$ $_pago')],
+                    ),
+                  )
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              FlatButton.icon(
+                icon: Icon(Icons.cancel, color: Colors.red),
+                label: Text(
+                  'Cancelar',
+                  style: TextStyle(color: Colors.red),
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+              FlatButton.icon(
+                icon: Icon(Icons.payment),
+                label: Text('Aceptar'),
+                onPressed: () {},
+              )
+            ],
+          );
+        });
   }
 
   Widget _appBar(BuildContext context) {
@@ -120,13 +212,20 @@ class _CollectPageState extends State<CollectPage>
                 child: ListTile(
                   leading: Column(
                     children: <Widget>[
-                      SizedBox(height: 20.0,),
-                      Icon(Icons.check, color: Colors.green,)
+                      SizedBox(
+                        height: 20.0,
+                      ),
+                      Icon(
+                        Icons.check,
+                        color: Colors.green,
+                      )
                     ],
                   ),
                   title: Column(
                     children: <Widget>[
-                      SizedBox(height: 20.0,),
+                      SizedBox(
+                        height: 20.0,
+                      ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
@@ -148,7 +247,9 @@ class _CollectPageState extends State<CollectPage>
                   ),
                   subtitle: Column(
                     children: <Widget>[
-                      SizedBox(height: 20.0,),
+                      SizedBox(
+                        height: 20.0,
+                      ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
@@ -166,12 +267,16 @@ class _CollectPageState extends State<CollectPage>
                           ),
                         ],
                       ),
-                      SizedBox(height: 20.0,),
+                      SizedBox(
+                        height: 20.0,
+                      ),
                     ],
                   ),
                   trailing: Column(
                     children: <Widget>[
-                      SizedBox(height: 30.0,),
+                      SizedBox(
+                        height: 30.0,
+                      ),
                       Text('${pagos[index].referencia}'),
                     ],
                   ),
