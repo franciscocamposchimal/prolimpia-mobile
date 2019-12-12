@@ -7,20 +7,24 @@ class PersonBloc with Validators {
   final _pagosController = BehaviorSubject<Map<String, dynamic>>();
   final _pagoInputController = BehaviorSubject<Map<String, dynamic>>();
   final _cambioController = BehaviorSubject<Map<String, dynamic>>();
+  final _enableButtonController = BehaviorSubject<bool>();
 
   Stream<Map<String, dynamic>> get pagosStream => _pagosController.stream;
   Stream<String> get pagoInputStream =>
       _pagoInputController.stream.transform(validarPago);
   Stream<String> get cambioStream =>
       _cambioController.stream.transform(validarCambio);
+  Stream<bool> get enableStream => _enableButtonController.stream;
 
   void _setPago(Map<String, dynamic> pago) => _pagosController.add(pago);
   Function(Map<String, dynamic>) get changePagoInput =>
       _pagoInputController.sink.add;
   Function(Map<String, dynamic>) get changeCambio => _cambioController.sink.add;
+  void _setEnable(bool enable) => _enableButtonController.add(enable);
 
   Map<String, dynamic> get pagoInput => _pagoInputController.value;
   Map<String, dynamic> get cambio => _cambioController.value;
+  bool get enable => _enableButtonController.value;
 
   Future<void> getPago(String id) async {
     final data = {'action': ''};
@@ -38,6 +42,20 @@ class PersonBloc with Validators {
       _pagosController.addError(e);
       data['action'] = 'ERROR';
       _setPago(data);
+    }
+  }
+
+  void enableButton() {
+    var pago = int.parse(pagoInput['pago']);
+    var recibido = int.parse(cambio['recibido']);
+    //print(pagoInput);
+    //print(cambio);
+    if (pago > 0 && recibido > 0 && recibido >= pago) {
+      _setEnable(true);
+      //print(pagoInput);
+      //print(cambio);
+    } else {
+      _setEnable(false);
     }
   }
 
