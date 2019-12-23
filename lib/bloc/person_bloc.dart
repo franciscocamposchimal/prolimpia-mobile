@@ -8,6 +8,7 @@ class PersonBloc with Validators {
   final _pagoInputController = BehaviorSubject<Map<String, dynamic>>();
   final _cambioController = BehaviorSubject<Map<String, dynamic>>();
   final _enableButtonController = BehaviorSubject<bool>();
+  //final _subsidioController = BehaviorSubject<Map<String, dynamic>>();
 
   Stream<Map<String, dynamic>> get pagosStream => _pagosController.stream;
   Stream<String> get pagoInputStream =>
@@ -57,6 +58,14 @@ class PersonBloc with Validators {
     } else {
       _setEnable(false);
     }
+  }
+
+  void subsidio(int subs){
+    var pago = int.parse(pagoInput['pago']);
+    var subtotal = double.parse((((subs?? 0) / 100) * pago).toStringAsFixed(2));
+    var total = pago - subtotal;
+    print('Subs $subtotal');
+    print('Total $total');
   }
 
   dispose() {

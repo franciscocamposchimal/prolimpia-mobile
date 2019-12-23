@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prolimpia_mobile/bloc/provider.dart';
+import 'package:prolimpia_mobile/utils/custom_icon_icons.dart';
 
 class PaymenDialog extends StatefulWidget {
   final String total;
@@ -76,6 +77,19 @@ class _PaymenDialogState extends State<PaymenDialog> {
                     );
                   }),
             ),
+            Padding(
+                padding: EdgeInsets.all(8.0),
+                child: TextField(
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
+                  decoration: InputDecoration(
+                      prefixIcon: Icon(CustomIcon.percent_symbol_svgrepo_com),
+                      labelText: 'Subsidio',
+                      hintText: '0'),
+                  onChanged: (val) {
+                    personBloc.subsidio(int.parse(val));
+                  },
+                )),
             Padding(
               padding: EdgeInsets.all(8.0),
               child: Row(

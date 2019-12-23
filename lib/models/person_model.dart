@@ -61,12 +61,12 @@ class Person {
     usrClave = json['USR_CLAVE'];
     usrFecultPago = json['USR_FECULTPAGO'];
     usrFlPago = json['USR_FLPAGO'];
-    usrAdeudo = json['USR_ADEUDO'];
+    usrAdeudo = json['USR_ADEUDO'].toInt();
     usrFactur = json['USR_FACTUR'];
     usrIva = json['USR_IVA'];
-    usrSubtotal = json['USR_SUBTOTAL'];
+    usrSubtotal = json['USR_SUBTOTAL'].toInt();
     usrSubsidio = json['USR_SUBSIDIO'];
-    usrTotal = json['USR_TOTAL'];
+    usrTotal = json['USR_TOTAL'].toInt();
     crtAviso = json['CRT_AVISO'];
     crtCorte = json['CRT_CORTE'];
     usrActivo = json['USR_ACTIVO'];
