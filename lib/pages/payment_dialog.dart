@@ -92,25 +92,6 @@ class _PaymenDialogState extends State<PaymenDialog> {
                 )),
             Padding(
               padding: EdgeInsets.all(8.0),
-              child: StreamBuilder(
-                  stream: personBloc.cambioStream,
-                  builder: (context, snapshot) {
-                    return TextField(
-                      keyboardType: TextInputType.number,
-                      textAlign: TextAlign.center,
-                      decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.perce),
-                          labelText: 'Subsidio',
-                          hintText: '0.00',
-                          errorText: snapshot.error),
-                      onChanged: (val) {
-                        print(val);
-                      },
-                    );
-                  }),
-            ),
-            Padding(
-              padding: EdgeInsets.all(8.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
