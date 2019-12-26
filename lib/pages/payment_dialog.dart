@@ -15,15 +15,40 @@ class _PaymenDialogState extends State<PaymenDialog> {
   @override
   Widget build(BuildContext context) {
     final personBloc = Provider.personsBloc(context);
+    personBloc.changePagoTotal(widget.total);
     personBloc.changePagoInput({'pago': '0', 'adeudo': '${widget.total}'});
     personBloc.changeCambio({'recibido': '0', 'pago': '0'});
     personBloc.enableButton();
     return AlertDialog(
-      title: Text('Total a pagar: \$ ${widget.total}'),
+      title: StreamBuilder(
+        stream: personBloc.pagoTotalInputStream,
+        builder: (context, snapshot) {
+          return Text('Total a pagar: \$ ${snapshot.data ?? 0.00}');
+        }
+      ),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
+            Padding(
+                padding: EdgeInsets.all(8.0),
+                child: StreamBuilder(
+                    stream: personBloc.subsidioInputStream,
+                    builder: (context, snapshot) {
+                      return TextField(
+                        keyboardType: TextInputType.number,
+                        textAlign: TextAlign.center,
+                        decoration: InputDecoration(
+                            prefixIcon: Icon(CustomIcon.percent),
+                            labelText: 'Subsidio',
+                            hintText: '0'),
+                        onChanged: (val) {
+                          //print('ANTES subsidio $val');
+                          personBloc.changeSubsidio({'subs': val.isNotEmpty ? int.parse(val) : 0 });
+                          personBloc.subsidioBloc(widget.total);
+                        },
+                      );
+                    })),
             Padding(
               padding: EdgeInsets.all(8.0),
               child: StreamBuilder(
@@ -47,6 +72,8 @@ class _PaymenDialogState extends State<PaymenDialog> {
                           'recibido': personBloc.cambio['recibido'],
                           'pago': val
                         });
+
+                        personBloc.subsidioBloc(widget.total);
 
                         personBloc.enableButton();
                       },
@@ -77,19 +104,6 @@ class _PaymenDialogState extends State<PaymenDialog> {
                     );
                   }),
             ),
-            Padding(
-                padding: EdgeInsets.all(8.0),
-                child: TextField(
-                  keyboardType: TextInputType.number,
-                  textAlign: TextAlign.center,
-                  decoration: InputDecoration(
-                      prefixIcon: Icon(CustomIcon.percent_symbol_svgrepo_com),
-                      labelText: 'Subsidio',
-                      hintText: '0'),
-                  onChanged: (val) {
-                    personBloc.subsidio(int.parse(val));
-                  },
-                )),
             Padding(
               padding: EdgeInsets.all(8.0),
               child: Row(

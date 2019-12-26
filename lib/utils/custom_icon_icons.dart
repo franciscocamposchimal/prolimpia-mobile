@@ -13,5 +13,5 @@ class CustomIcon {
 
   static const _kFontFam = 'CustomIcon';
 
-  static const IconData percent_symbol_svgrepo_com = const IconData(0xe800, fontFamily: _kFontFam);
+  static const IconData percent = const IconData(0xe800, fontFamily: _kFontFam);
 }
