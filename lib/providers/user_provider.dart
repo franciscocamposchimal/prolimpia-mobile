@@ -8,8 +8,9 @@ import 'package:prolimpia_mobile/shared_preferences/shared_preferences.dart';
 
 class UserProvider {
   final _prefs = new PreferenciasUsuario();
-  //String _url = 'http://192.168.100.199:8000/api/users';
+  //String _url = 'http://192.168.100.7:8000/api/users';
   String _url = 'http://prolimpia.duckdns.org:8080/prolimpia/public/api/users';
+  //String _url = 'http://192.168.1.103:8000/api/users';
 
   Future<Map<String, dynamic>> login(String email, String pass) async {
     print('LOGIN HTTP');
@@ -28,6 +29,7 @@ class UserProvider {
       final currentUser = new CurrentUser.fromJson(decodeData);
       _prefs.user = currentUser;
       data['user'] = currentUser;
+      print(decodeData);
       return data;
     } else {
       data['user'] = null;
@@ -43,7 +45,6 @@ class UserProvider {
       final authorizationHeaders = {
         HttpHeaders.authorizationHeader: 'bearer ${_prefs.user.token}'
       };
-
       final response = await http.get(url, headers: authorizationHeaders);
       print('Response status: ${response.statusCode}');
       data['status'] = response.statusCode;

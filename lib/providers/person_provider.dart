@@ -8,8 +8,9 @@ import 'package:prolimpia_mobile/shared_preferences/shared_preferences.dart';
 
 class PersonProvider {
   final _prefs = new PreferenciasUsuario();
-  //String _url = 'http://192.168.100.199:8000/api/persons';
+  //String _url = 'http://192.168.100.7:8000/api/persons';
   String _url = 'http://prolimpia.duckdns.org:8080/prolimpia/public/api/persons';
+  //String _url = 'http://192.168.1.103:8000/api/persons';
 
   Future<List<Person>> search(String q) async {
     print('SEARCH');
@@ -19,9 +20,12 @@ class PersonProvider {
     final authorizationHeaders = {
       HttpHeaders.authorizationHeader: 'bearer ${_prefs.user.token}'
     };
-
+    
     final response = await http.get(url, headers: authorizationHeaders);
     print('Response status: ${response.statusCode}');
+    //print(response.body);
+
+    if(response.statusCode != 200) return [];
 
     final decodeData = json.decode(response.body);
     //final responseQ = new Persons.fromJsonList(decodeData);

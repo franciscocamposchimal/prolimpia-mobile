@@ -31,48 +31,58 @@ class Validators {
     }
   });
 
-  final validarPago =
+  final calcularPago =
       StreamTransformer<Map<String, dynamic>, String>.fromHandlers(
-          handleData: (restaPago, sink) {
-    var pagoStream = restaPago['pago'].isEmpty || restaPago['pago'] == '-'
-        ? 0
-        : int.parse(restaPago['pago']);
-    var adeudoStream =
-        restaPago['adeudo'].isEmpty ? 0 : int.parse(restaPago['adeudo']);
-    if (pagoStream > 0) {
-      if ((adeudoStream == 0 || adeudoStream < 0) && pagoStream > 0) {
-        sink.add('${adeudoStream - pagoStream}');
-      }
-      if (pagoStream > adeudoStream && adeudoStream > 0) {
-        sink.addError('No puede ser mayor a $adeudoStream');
-      }
-
-      if (pagoStream <= adeudoStream) {
-        sink.add('${adeudoStream - pagoStream}');
-      }
+          handleData: (data, sink) {
+    //Total, fijo, sacar porcentaje (100 o -100)
+    var totalAdeudo = data['totalAdeudo'].isEmpty
+        ? 0.0
+        : double.parse(data['totalAdeudo']); //Puede ser negativo
+    //Lo que voy a abonar (20)
+    var pago = data['pago'].isEmpty ? 0.0 : double.parse(data['pago']);
+    if (pago > totalAdeudo) {
+      print("PAGO MAYOR");
+      sink.addError("PAGO MAYOR AL ADEUDO");
     } else {
-      sink.addError('La cantidad debe ser mayor a 0.');
+      //Total, puede variar (100)
+      var adeudo = data['adeudo'].isEmpty ? 0.0 : double.parse(data['adeudo']);
+      //Descuento (50)
+      var subsidio =
+          data['subsidio'].isEmpty ? 0.0 : double.parse(data['subsidio']);
+      if (subsidio > 50) {
+        print("SUBS MAYOR");
+        sink.addError("SUBSIDIO MAYOR AL PERMITIDO");
+      } else {
+        //Porcentaje (descuento/totalAdeudo)(%50 = 50.00)
+        var porcentaje = double.parse(
+            (((subsidio ?? 0) / 100) * totalAdeudo).toStringAsFixed(2));
+        //Total menos el descuento (100.00 - %50(50.00) = 50 )
+        var subtotal = adeudo - porcentaje;
+        // Total menos el descuento, menos el pago (50 - 20 = 30)
+        var total = subtotal - pago;
+        print("CALCULAR TOTAL: $total");
+        sink.add(total.toStringAsFixed(2));
+      }
     }
   });
 
   final validarCambio =
       StreamTransformer<Map<String, dynamic>, String>.fromHandlers(
           handleData: (cambioPago, sink) {
-    var recibiStream =
-        cambioPago['recibido'].isEmpty || cambioPago['recibido'] == '-'
-            ? 0
-            : int.parse(cambioPago['recibido']);
+    var recibiStream = cambioPago['recibido'].isEmpty
+        ? 0.0
+        : double.parse(cambioPago['recibido']);
     var pagotream =
-        cambioPago['pago'].isEmpty ? 0 : int.parse(cambioPago['pago']);
+        cambioPago['pago'].isEmpty ? 0.0 : double.parse(cambioPago['pago']);
     //print('recibi: $recibiStream, pago: $pagotream');
-    if (recibiStream > 0) {
-      if (recibiStream >= pagotream && pagotream != 0 ) {
+    if (recibiStream > 0.0) {
+      if (recibiStream >= pagotream && pagotream != 0.0) {
         sink.add('${recibiStream - pagotream}');
       } else {
-        if(pagotream == 0){
+        if (pagotream == 0.0) {
           sink.addError('Importe a pagar es 0');
-        }else{
-        sink.addError('Faltan \$ ${pagotream - recibiStream}');
+        } else {
+          sink.addError('Faltan \$ ${pagotream - recibiStream}');
         }
       }
     } else {
