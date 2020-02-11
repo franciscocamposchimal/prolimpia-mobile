@@ -13,7 +13,7 @@ class SplashPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 CircularProgressIndicator(
-                  backgroundColor: Colors.white,
+                  backgroundColor: const Color.fromRGBO(255, 255, 255, 1.0),
                 ),
                 SizedBox(height: 10.0),
                 Text(

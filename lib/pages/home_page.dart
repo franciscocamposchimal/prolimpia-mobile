@@ -74,9 +74,9 @@ class _HomePageState extends State<HomePage> with AfterInitMixin<HomePage> {
       leading: Hero(
         tag: 'logo-hero',
         child: Image.asset(
-          'assets/logo-progreso.png',
-          width: 50.0,
-          height: 50.0,
+          'assets/prolimpiaMobile2_blanco.png',
+          width: 200.0,
+          height: 200.0,
         ),
       ),
       title: Text('PROLIMPIA',
@@ -104,8 +104,8 @@ class _HomePageState extends State<HomePage> with AfterInitMixin<HomePage> {
                 end: Alignment.bottomRight,
                 colors: <Color>[
               Color.fromRGBO(103, 218, 255, 1.0),
-              Color.fromRGBO(3, 169, 244, 1.0),
-              Color.fromRGBO(0, 122, 193, 1.0)
+              Color.fromRGBO(0, 47, 67, 1.0),
+              Color.fromRGBO(0, 47, 67, 1.0)
             ])),
       ),
     );

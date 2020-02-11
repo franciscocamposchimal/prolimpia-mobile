@@ -91,16 +91,34 @@ class _CollectPageState extends State<CollectPage>
 
   Widget _appBar(BuildContext context) {
     return AppBar(
-      iconTheme: IconThemeData(
-        color: Theme.of(context).primaryColor,
-      ),
-      backgroundColor: Colors.white,
-      elevation: 0.0,
-      title: Text(
-        'Cobros',
-        style: TextStyle(color: Colors.black),
-      ),
+      elevation: 2.0,
+      title: Text('PROLIMPIA',
+          style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+              fontSize: 30.0)),
       centerTitle: true,
+      actions: <Widget>[
+        Container(
+          margin: EdgeInsets.only(right: 8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+           
+          ),
+        )
+      ],
+      flexibleSpace: Container(
+        decoration: BoxDecoration(
+            gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: <Color>[
+              Color.fromRGBO(103, 218, 255, 1.0),
+              Color.fromRGBO(0, 47, 67, 1.0),
+              Color.fromRGBO(0, 47, 67, 1.0)
+            ])),
+      ),
     );
   }
 
@@ -217,8 +235,9 @@ class _CollectPageState extends State<CollectPage>
       child: Container(
         decoration: BoxDecoration(
             gradient: LinearGradient(colors: [
-          Color.fromRGBO(103, 218, 255, 1.0),
-          Color.fromRGBO(0, 122, 193, 1.0)
+        Color.fromRGBO(103, 218, 255, 1.0),
+         Color.fromRGBO(0, 47, 67, 1.0), 
+          Color.fromRGBO(0, 47, 67, 1.0)
         ])),
         padding: EdgeInsets.all(5.0),
         child: Column(

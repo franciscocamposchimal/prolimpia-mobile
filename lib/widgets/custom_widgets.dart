@@ -9,18 +9,18 @@ Widget crearFondo(BuildContext context, String texto) {
     decoration: BoxDecoration(
         gradient: LinearGradient(colors: <Color>[
       Color.fromRGBO(103, 218, 255, 1.0),
-      Color.fromRGBO(3, 169, 244, 1.0),
-      Color.fromRGBO(0, 122, 193, 1.0)
+      Color.fromRGBO(0, 47, 67, 1.0),
+      Color.fromRGBO(0, 47, 67, 1.0)
     ])),
   );
 
-  final circulo = Container(
-    width: 100.0,
+ final circulo = Container(
+ /*   width: 100.0,
     height: 100.0,
     decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(100.0),
-        color: Color.fromRGBO(255, 255, 255, 0.05)),
-  );
+      color: Color.fromRGBO(255, 255, 255, 0.05)), */
+  );  
 
   return Stack(
     children: <Widget>[
@@ -31,15 +31,15 @@ Widget crearFondo(BuildContext context, String texto) {
       Positioned(bottom: 120.0, right: 20.0, child: circulo),
       Positioned(bottom: -50.0, left: -20.0, child: circulo),
       Container(
-        padding: EdgeInsets.only(top: 80.0),
+        padding: EdgeInsets.only(top: 50.0),
         child: Column(
           children: <Widget>[
             Hero(
                 tag: 'hero-tag',
                 child: Image.asset(
-                  'assets/logo-progreso.png',
-                  width: 100.0,
-                  height: 100.0,
+                  'assets/prolimpiaMobile2_blanco.png',
+                  width: 200.0,
+                  height: 200.0,
                 )),
             SizedBox(height: 10.0, width: double.infinity),
             Text(texto, style: TextStyle(color: Colors.white, fontSize: 25.0))

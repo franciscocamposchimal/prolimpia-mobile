@@ -8,8 +8,8 @@ import 'package:prolimpia_mobile/shared_preferences/shared_preferences.dart';
 
 class PersonProvider {
   final _prefs = new PreferenciasUsuario();
-  String _url = 'http://192.168.100.199:8000/api/persons';
-  //String _url = 'http://prolimpia.duckdns.org:8080/prolimpia/public/api/persons';
+  //String _url = 'http://192.168.0.96:8000/api/persons';
+  String _url = 'http://prolimpia.duckdns.org:8080/prolimpia/public/api/persons';
 
   Future<List<Person>> search(String q) async {
     print('SEARCH');
