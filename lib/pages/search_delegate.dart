@@ -35,7 +35,7 @@ class DataSearch extends SearchDelegate {
   @override
   Widget buildResults(BuildContext context) {
     if (query.isEmpty || query.length <= 4) {
-      print(query.length);
+      //print(query.length);
       return Container(
         child: Center(
           child: Text('Vacío o mayor a 4 letras...'),
@@ -48,7 +48,7 @@ class DataSearch extends SearchDelegate {
           if (!snapshot.hasData || snapshot.data.isEmpty) {
             return Center(child: CircularProgressIndicator());
           } else {
-            print(snapshot.data);
+            //print(snapshot.data);
             final List<Person> persons = snapshot.data;
             return ListView.separated(
               separatorBuilder: (context, index) => Divider(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:prolimpia_mobile/bloc/provider.dart';
+import 'package:prolimpia_mobile/utils/custom_icon_icons.dart';
 
 class PaymenDialog extends StatefulWidget {
   final String total;
@@ -14,70 +16,107 @@ class _PaymenDialogState extends State<PaymenDialog> {
   @override
   Widget build(BuildContext context) {
     final personBloc = Provider.personsBloc(context);
-    personBloc.changePagoInput({'pago': '0', 'adeudo': '${widget.total}'});
     personBloc.changeCambio({'recibido': '0', 'pago': '0'});
+    personBloc.changePagoTotal({'pago': '0.0'});
+    personBloc.changeSubsidio({'subsidio': '0.0'});
+    personBloc.changePagoInput({
+      'totalAdeudo': '${widget.total}',
+      'pago': '0.0',
+      'adeudo': '${widget.total}',
+      'subsidio': '0.0',
+    });
     personBloc.enableButton();
+
     return AlertDialog(
-      title: Text('Total a pagar: \$ ${widget.total}'),
+      title: Text('Total a pagar: \$ ${widget.total ?? 0.00}'),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             Padding(
-              padding: EdgeInsets.all(8.0),
-              child: StreamBuilder(
-                  stream: personBloc.pagoInputStream,
-                  builder: (context, snapshot) {
-                    return TextField(
-                      autofocus: true,
-                      keyboardType: TextInputType.number,
-                      textAlign: TextAlign.center,
-                      decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.attach_money),
-                          labelText: 'Pago',
-                          hintText: '0.00',
-                          errorText: snapshot.error),
-                      onChanged: (val) {
-                        print(val);
-                        personBloc.changePagoInput(
-                            {'pago': val, 'adeudo': '${widget.total}'});
+                padding: const EdgeInsets.all(5.0),
+                child: TextField(
+                  textAlign: TextAlign.center,
+                  inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
+                  keyboardType: TextInputType.numberWithOptions(
+                      decimal: true, signed: false),
+                  decoration: InputDecoration(
+                      prefixIcon: Icon(CustomIcon.percent),
+                      labelText: 'Subsidio',
+                      hintText: '0'),
+                  onChanged: (val) {
+                    final valueChange = val.isNotEmpty ? val : "0.0";
+                    personBloc.changeSubsidio(
+                        {'subsidio': valueChange});
+                    personBloc.changePagoInput({
+                      'totalAdeudo': '${widget.total}',
+                      'pago': personBloc.pagoTotal['pago'],
+                      'adeudo': '${widget.total}',
+                      'subsidio': personBloc.subsidio['subsidio'],
+                    });
+                  },
+                )),
+            Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: TextField(
+                  textAlign: TextAlign.center,
+                  autofocus: true,
+                  inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
+                  keyboardType: TextInputType.numberWithOptions(
+                      decimal: true, signed: false),
+                  decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.attach_money),
+                      labelText: 'Pago',
+                      hintText: '0.00'),
+                  onChanged: (val) {
+                    final valueChange = val.isNotEmpty ? val : "0.0";
+                    personBloc.changePagoTotal(
+                        {'pago': valueChange });
+                    
+                    personBloc.changePagoInput({
+                      'totalAdeudo': '${widget.total}',
+                      'pago': personBloc.pagoTotal['pago'],
+                      'adeudo': '${widget.total}',
+                      'subsidio': personBloc.subsidio['subsidio'],
+                    });
 
-                        personBloc.changeCambio({
-                          'recibido': personBloc.cambio['recibido'],
-                          'pago': val
-                        });
+                    personBloc.enableButton();
+                  },
+                )),
+            StreamBuilder(
+              stream: personBloc.cambioStream,
+              builder: (context, snapshot) {
+                return Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: TextField(
+                    textAlign: TextAlign.center,
+                    inputFormatters: [
+                      WhitelistingTextInputFormatter.digitsOnly
+                    ],
+                    keyboardType: TextInputType.numberWithOptions(
+                        decimal: true, signed: false),
+                    decoration: InputDecoration(
+                        prefixIcon: Icon(Icons.attach_money),
+                        labelText: 'Recibí',
+                        hintText: '0.00',
+                        errorText: snapshot.error),
+                    onChanged: (val) {
+                      final valTosend = val ?? 0;
+                      print("VAL: $valTosend");
+                      print("PAGO: ${personBloc.pagoInput['pago']}");
+                      personBloc.changeCambio({
+                        'recibido': valTosend,
+                        'pago': '${personBloc.pagoInput['pago']}'
+                      });
 
-                        personBloc.enableButton();
-                      },
-                    );
-                  }),
+                      personBloc.enableButton();
+                    },
+                  ),
+                );
+              },
             ),
             Padding(
-              padding: EdgeInsets.all(8.0),
-              child: StreamBuilder(
-                  stream: personBloc.cambioStream,
-                  builder: (context, snapshot) {
-                    return TextField(
-                      keyboardType: TextInputType.number,
-                      textAlign: TextAlign.center,
-                      decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.attach_money),
-                          labelText: 'Recibí',
-                          hintText: '0.00',
-                          errorText: snapshot.error),
-                      onChanged: (val) {
-                        personBloc.changeCambio({
-                          'recibido': val,
-                          'pago': '${personBloc.pagoInput['pago']}'
-                        });
-
-                        personBloc.enableButton();
-                      },
-                    );
-                  }),
-            ),
-            Padding(
-              padding: EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(5.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
@@ -93,19 +132,34 @@ class _PaymenDialogState extends State<PaymenDialog> {
             ),
             SizedBox(height: 10.0),
             Padding(
-              padding: EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(8.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
                   StreamBuilder(
                       stream: personBloc.pagoInputStream,
                       builder: (context, snapshot) {
-                        return Text(
-                            'Adeudo final: \$ ${snapshot.hasData ? snapshot.data : widget.total}');
+                        final total = snapshot.hasData
+                            ? snapshot.data ?? widget.total
+                            : widget.total;
+                        return Text('Adeudo final: \$ $total');
                       })
                 ],
               ),
-            )
+            ),
+            StreamBuilder(
+              stream: personBloc.pagoInputStream,
+              builder: (context, snapshot) {
+                final error = snapshot.error ?? ""; 
+                return Padding(
+                  padding: const EdgeInsets.all(2.0),
+                  child: Text(
+                    '$error',
+                    style: TextStyle(color: Colors.red),
+                    ),
+                );
+              }
+            ),
           ],
         ),
       ),
