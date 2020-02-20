@@ -80,7 +80,7 @@ class PersonBloc with Validators {
   }
 
   void enableButton() {
-    var pago = double.parse(pagoInput['pago']);
+    var pago = double.parse(pagoTotal['pago']);
     var recibido = double.parse(cambio['recibido']);
     if (pago > 0 && recibido > 0 && recibido >= pago) {
       _setEnable(true);

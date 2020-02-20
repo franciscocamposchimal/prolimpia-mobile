@@ -1,5 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:blue_thermal_printer/blue_thermal_printer.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:prolimpia_mobile/bloc/provider.dart';
 import 'package:prolimpia_mobile/utils/custom_icon_icons.dart';
 
@@ -13,6 +16,69 @@ class PaymenDialog extends StatefulWidget {
 }
 
 class _PaymenDialogState extends State<PaymenDialog> {
+  //Bluetooth
+  BlueThermalPrinter bluetooth = BlueThermalPrinter.instance;
+
+  List<BluetoothDevice> _devices = [];
+  BluetoothDevice _device;
+  bool _connected = false;
+  bool _pressed = false;
+  String pathImage;
+  //Bluetooth
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+    initSavetoPath();
+  }
+
+  initSavetoPath() async {
+    final filename = 'logo-ticket.png';
+    var bytes = await rootBundle.load("assets/logo-ticket.png");
+    Directory appDocDir = await getApplicationDocumentsDirectory();
+    String dir = appDocDir.path;
+    writeToFile(bytes, '$dir/$filename');
+    setState(() {
+      pathImage = '$dir/$filename';
+    });
+  }
+
+  Future<void> initPlatformState() async {
+    List<BluetoothDevice> devices = [];
+
+    try {
+      devices = await bluetooth.getBondedDevices();
+    } on PlatformException {
+      print("ERROR...");
+    }
+
+    bluetooth.onStateChanged().listen((state) {
+      switch (state) {
+        case BlueThermalPrinter.CONNECTED:
+          setState(() {
+            _connected = true;
+            _pressed = false;
+          });
+          break;
+        case BlueThermalPrinter.DISCONNECTED:
+          setState(() {
+            _connected = false;
+            _pressed = false;
+          });
+          break;
+        default:
+          print(state);
+          break;
+      }
+    });
+
+    if (!mounted) return;
+    setState(() {
+      _devices = devices;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final personBloc = Provider.personsBloc(context);
@@ -25,7 +91,6 @@ class _PaymenDialogState extends State<PaymenDialog> {
       'adeudo': '${widget.total}',
       'subsidio': '0.0',
     });
-    personBloc.enableButton();
 
     return AlertDialog(
       title: Text('Total a pagar: \$ ${widget.total ?? 0.00}'),
@@ -46,14 +111,14 @@ class _PaymenDialogState extends State<PaymenDialog> {
                       hintText: '0'),
                   onChanged: (val) {
                     final valueChange = val.isNotEmpty ? val : "0.0";
-                    personBloc.changeSubsidio(
-                        {'subsidio': valueChange});
+                    personBloc.changeSubsidio({'subsidio': valueChange});
                     personBloc.changePagoInput({
                       'totalAdeudo': '${widget.total}',
                       'pago': personBloc.pagoTotal['pago'],
                       'adeudo': '${widget.total}',
                       'subsidio': personBloc.subsidio['subsidio'],
                     });
+                    personBloc.enableButton();
                   },
                 )),
             Padding(
@@ -70,9 +135,8 @@ class _PaymenDialogState extends State<PaymenDialog> {
                       hintText: '0.00'),
                   onChanged: (val) {
                     final valueChange = val.isNotEmpty ? val : "0.0";
-                    personBloc.changePagoTotal(
-                        {'pago': valueChange });
-                    
+                    personBloc.changePagoTotal({'pago': valueChange});
+
                     personBloc.changePagoInput({
                       'totalAdeudo': '${widget.total}',
                       'pago': personBloc.pagoTotal['pago'],
@@ -148,18 +212,17 @@ class _PaymenDialogState extends State<PaymenDialog> {
               ),
             ),
             StreamBuilder(
-              stream: personBloc.pagoInputStream,
-              builder: (context, snapshot) {
-                final error = snapshot.error ?? ""; 
-                return Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: Text(
-                    '$error',
-                    style: TextStyle(color: Colors.red),
+                stream: personBloc.pagoInputStream,
+                builder: (context, snapshot) {
+                  final error = snapshot.error ?? "";
+                  return Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: Text(
+                      '$error',
+                      style: TextStyle(color: Colors.red),
                     ),
-                );
-              }
-            ),
+                  );
+                }),
           ],
         ),
       ),
@@ -177,15 +240,23 @@ class _PaymenDialogState extends State<PaymenDialog> {
         StreamBuilder(
             stream: personBloc.enableStream,
             builder: (context, snapshot) {
-              //print('SNAP');
-              //print(snapshot.data);
               return FlatButton.icon(
                 icon: Icon(Icons.payment),
-                label: Text('Aceptar'),
-                onPressed: snapshot.data ? () {} : null,
+                label: Text('Pagar'),
+                onPressed: snapshot.hasData
+                ? snapshot.data 
+                ? () {} 
+                : null 
+                : null,
               );
             })
       ],
     );
   }
+}
+//write to app path
+Future<void> writeToFile(ByteData data, String path) {
+  final buffer = data.buffer;
+  return new File(path)
+      .writeAsBytes(buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
 }
