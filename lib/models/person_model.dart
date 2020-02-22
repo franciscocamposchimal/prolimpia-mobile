@@ -12,6 +12,7 @@ class Person {
   String usrFecultPago;
   String usrFlPago;
   int usrAdeudo;
+  double usrRecargo;
   int usrFactur;
   int usrIva;
   int usrSubtotal;
@@ -37,6 +38,7 @@ class Person {
       this.usrFecultPago,
       this.usrFlPago,
       this.usrAdeudo,
+      this.usrRecargo,
       this.usrFactur,
       this.usrIva,
       this.usrSubtotal,
@@ -62,6 +64,7 @@ class Person {
     usrFecultPago = json['USR_FECULTPAGO'];
     usrFlPago = json['USR_FLPAGO'];
     usrAdeudo = json['USR_ADEUDO'].toInt();
+    usrRecargo = json['USR_RECARGO'].toDouble();
     usrFactur = json['USR_FACTUR'];
     usrIva = json['USR_IVA'];
     usrSubtotal = json['USR_SUBTOTAL'].toInt();
@@ -89,6 +92,7 @@ class Person {
     data['USR_FECULTPAGO'] = this.usrFecultPago;
     data['USR_FLPAGO'] = this.usrFlPago;
     data['USR_ADEUDO'] = this.usrAdeudo;
+    data['USR_RECARGO'] = this.usrRecargo;
     data['USR_FACTUR'] = this.usrFactur;
     data['USR_IVA'] = this.usrIva;
     data['USR_SUBTOTAL'] = this.usrSubtotal;

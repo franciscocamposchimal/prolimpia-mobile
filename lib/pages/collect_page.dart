@@ -31,12 +31,12 @@ class _CollectPageState extends State<CollectPage>
     final personBloc = Provider.personsBloc(context);
     personBloc.changeCambio({'recibido': '0', 'pago': '0'});
     personBloc.changePagoTotal({'pago': '0.0'});
-    personBloc.changeSubsidio({'subsidio': '0.0'});
+    personBloc.changeSubsidio({'subsidio': '${widget.person.usrSubsidio}'});
     personBloc.changePagoInput({
       'totalAdeudo': '${widget.person.usrTotal}',
       'pago': '0.0',
       'adeudo': '${widget.person.usrTotal}',
-      'subsidio': '0.0',
+      'subsidio': '${widget.person.usrSubsidio}',
     });
     return Scaffold(
       resizeToAvoidBottomPadding: false,
@@ -131,19 +131,7 @@ class _CollectPageState extends State<CollectPage>
               decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(CustomIcon.percent),
-                  labelText: 'Subsidio',
-                  hintText: '0'),
-              onChanged: (val) {
-                final valueChange = val.isNotEmpty ? val : "0.0";
-                bloc.changeSubsidio({'subsidio': valueChange});
-                bloc.changePagoInput({
-                  'totalAdeudo': '${widget.person.usrTotal}',
-                  'pago': bloc.pagoTotal['pago'],
-                  'adeudo': '${widget.person.usrTotal}',
-                  'subsidio': bloc.subsidio['subsidio'],
-                });
-                bloc.enableButton();
-              },
+                  labelText: 'Subsidio ${widget.person.usrSubsidio}'),
             ),
             SizedBox(height: 20.0),
             TextField(
@@ -165,7 +153,7 @@ class _CollectPageState extends State<CollectPage>
                   'totalAdeudo': '${widget.person.usrTotal}',
                   'pago': bloc.pagoTotal['pago'],
                   'adeudo': '${widget.person.usrTotal}',
-                  'subsidio': bloc.subsidio['subsidio'],
+                  'subsidio': '${widget.person.usrSubsidio}',
                 });
 
                 bloc.enableButton();
@@ -200,13 +188,23 @@ class _CollectPageState extends State<CollectPage>
                 );
               },
             ),
-            SizedBox(height: 15.0),
+            SizedBox(height: 10.0),
             Container(
               decoration: BoxDecoration(border: Border.all(width: 2)),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
                   SizedBox(height: 8.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child:
+                            Text('Recargo: \$ ${widget.person.usrRecargo.toStringAsFixed(2)}'),
+                      ),
+                    ],
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: <Widget>[
@@ -222,8 +220,7 @@ class _CollectPageState extends State<CollectPage>
                     children: <Widget>[
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child:
-                            Text('Total: \$ ${widget.person.usrTotal}'),
+                        child: Text('Total: \$ ${widget.person.usrTotal}'),
                       ),
                     ],
                   ),
