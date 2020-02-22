@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:after_init/after_init.dart';
-
+import 'package:flutter/services.dart';
 import 'package:prolimpia_mobile/bloc/provider.dart';
-import 'package:prolimpia_mobile/models/payments_model.dart';
 import 'package:prolimpia_mobile/models/person_model.dart';
-import 'package:prolimpia_mobile/pages/payment_dialog.dart';
+import 'package:prolimpia_mobile/utils/custom_icon_icons.dart';
 
 class CollectPage extends StatefulWidget {
   final Person person;
@@ -30,6 +29,15 @@ class _CollectPageState extends State<CollectPage>
   @override
   Widget build(BuildContext context) {
     final personBloc = Provider.personsBloc(context);
+    personBloc.changeCambio({'recibido': '0', 'pago': '0'});
+    personBloc.changePagoTotal({'pago': '0.0'});
+    personBloc.changeSubsidio({'subsidio': '0.0'});
+    personBloc.changePagoInput({
+      'totalAdeudo': '${widget.person.usrTotal}',
+      'pago': '0.0',
+      'adeudo': '${widget.person.usrTotal}',
+      'subsidio': '0.0',
+    });
     return Scaffold(
       resizeToAvoidBottomPadding: false,
       appBar: _appBar(context),
@@ -47,7 +55,7 @@ class _CollectPageState extends State<CollectPage>
                 ),
               ),
             ),
-            _paymentItems(personBloc),
+            _formToPay(personBloc),
           ],
         ),
       ),
@@ -69,24 +77,13 @@ class _CollectPageState extends State<CollectPage>
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(0.0)),
               borderSide: BorderSide(color: Color(0xFF015FFF), width: 1.0),
-              onPressed: () async {
-                await _formDialog(context);
-              },
-              child: Text("PAGAR"),
+              onPressed: () {},
+              child: Text("Historial"),
             )
           ],
         ),
       ),
     );
-  }
-
-  Future _formDialog(BuildContext context) async {
-    return await showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (BuildContext context) {
-          return PaymenDialog(total: '${widget.person.usrTotal}');
-        });
   }
 
   Widget _appBar(BuildContext context) {
@@ -104,7 +101,6 @@ class _CollectPageState extends State<CollectPage>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
-           
           ),
         )
       ],
@@ -122,108 +118,165 @@ class _CollectPageState extends State<CollectPage>
     );
   }
 
-  Widget _paymentItems(PersonBloc bloc) {
+  Widget _formToPay(PersonBloc bloc) {
     return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
       child: Container(
-          padding:
-              EdgeInsets.only(top: 20.0, bottom: 20.0, left: 5.0, right: 5.0),
-          child: StreamBuilder(
-              stream: bloc.pagosStream,
-              builder: (BuildContext ctx,
-                  AsyncSnapshot<Map<String, dynamic>> snapshot) {
-                return snapshot.hasData && snapshot.data['action'] == 'SUCCESS'
-                    ? _listCards(snapshot.data['body'])
-                    : Center(child: CircularProgressIndicator());
-              })),
-    );
-  }
+        padding: EdgeInsets.all(30.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            TextField(
+              enabled: false,
+              textAlign: TextAlign.center,
+              decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(CustomIcon.percent),
+                  labelText: 'Subsidio',
+                  hintText: '0'),
+              onChanged: (val) {
+                final valueChange = val.isNotEmpty ? val : "0.0";
+                bloc.changeSubsidio({'subsidio': valueChange});
+                bloc.changePagoInput({
+                  'totalAdeudo': '${widget.person.usrTotal}',
+                  'pago': bloc.pagoTotal['pago'],
+                  'adeudo': '${widget.person.usrTotal}',
+                  'subsidio': bloc.subsidio['subsidio'],
+                });
+                bloc.enableButton();
+              },
+            ),
+            SizedBox(height: 20.0),
+            TextField(
+              textAlign: TextAlign.center,
+              autofocus: true,
+              inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
+              keyboardType:
+                  TextInputType.numberWithOptions(decimal: true, signed: false),
+              decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.attach_money),
+                  labelText: 'Pago',
+                  hintText: '0.00'),
+              onChanged: (val) {
+                final valueChange = val.isNotEmpty ? val : "0.0";
+                bloc.changePagoTotal({'pago': valueChange});
 
-  Widget _listCards(List<Payment> pagos) {
-    return pagos.length > 0
-        ? ListView.builder(
-            shrinkWrap: true,
-            physics: ClampingScrollPhysics(),
-            itemCount: pagos.length,
-            itemBuilder: (context, index) {
-              return Card(
-                elevation: 5.0,
-                child: ListTile(
-                  leading: Column(
+                bloc.changePagoInput({
+                  'totalAdeudo': '${widget.person.usrTotal}',
+                  'pago': bloc.pagoTotal['pago'],
+                  'adeudo': '${widget.person.usrTotal}',
+                  'subsidio': bloc.subsidio['subsidio'],
+                });
+
+                bloc.enableButton();
+              },
+            ),
+            SizedBox(height: 20.0),
+            StreamBuilder(
+              stream: bloc.cambioStream,
+              builder: (context, snapshot) {
+                return TextField(
+                  textAlign: TextAlign.center,
+                  inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
+                  keyboardType: TextInputType.numberWithOptions(
+                      decimal: true, signed: false),
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.attach_money),
+                      labelText: 'Recibí',
+                      hintText: '0.00',
+                      errorText: snapshot.error),
+                  onChanged: (val) {
+                    final valTosend = val ?? 0;
+                    print("VAL: $valTosend");
+                    print("PAGO: ${bloc.pagoInput['pago']}");
+                    bloc.changeCambio({
+                      'recibido': valTosend,
+                      'pago': '${bloc.pagoInput['pago']}'
+                    });
+
+                    bloc.enableButton();
+                  },
+                );
+              },
+            ),
+            SizedBox(height: 15.0),
+            Container(
+              decoration: BoxDecoration(border: Border.all(width: 2)),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  SizedBox(height: 8.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: <Widget>[
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      Icon(
-                        Icons.check,
-                        color: Colors.green,
-                      )
-                    ],
-                  ),
-                  title: Column(
-                    children: <Widget>[
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text(
-                            'S. ant: \$ ${pagos[index].saldoant}',
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          Text(
-                            'S. post: \$ ${pagos[index].saldopost}',
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          Text(
-                            '${pagos[index].tipopago}',
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  subtitle: Column(
-                    children: <Widget>[
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text(
-                            'F. pago: ${pagos[index].fpago}',
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          Text(
-                            'Recibido: \$ ${pagos[index].efectivo}',
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          Text(
-                            'Cambio: \$ ${pagos[index].cambio}',
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 20.0,
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child:
+                            Text('Subtotal: \$ ${widget.person.usrSubtotal}'),
                       ),
                     ],
                   ),
-                  trailing: Column(
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: <Widget>[
-                      SizedBox(
-                        height: 30.0,
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child:
+                            Text('Total: \$ ${widget.person.usrTotal}'),
                       ),
-                      Text('${pagos[index].referencia}'),
                     ],
                   ),
-                ),
-              );
-            },
-          )
-        : Center(child: Text('Sin pagos anteriores...'));
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      StreamBuilder(
+                          stream: bloc.cambioStream,
+                          builder: (context, snapshot) {
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                  'Cambio Total: \$ ${snapshot.hasData ? snapshot.data : 0}'),
+                            );
+                          }),
+                    ],
+                  ),
+                  SizedBox(height: 10.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      StreamBuilder(
+                          stream: bloc.pagoInputStream,
+                          builder: (context, snapshot) {
+                            final total = snapshot.hasData
+                                ? snapshot.data ?? widget.person.usrTotal
+                                : widget.person.usrTotal;
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text('Adeudo final: \$ $total'),
+                            );
+                          })
+                    ],
+                  ),
+                  StreamBuilder(
+                      stream: bloc.pagoInputStream,
+                      builder: (context, snapshot) {
+                        final error = snapshot.error ?? "";
+                        return Padding(
+                          padding: const EdgeInsets.all(2.0),
+                          child: Text(
+                            '$error',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        );
+                      }),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _topArea() {
@@ -235,8 +288,8 @@ class _CollectPageState extends State<CollectPage>
       child: Container(
         decoration: BoxDecoration(
             gradient: LinearGradient(colors: [
-        Color.fromRGBO(103, 218, 255, 1.0),
-         Color.fromRGBO(0, 47, 67, 1.0), 
+          Color.fromRGBO(103, 218, 255, 1.0),
+          Color.fromRGBO(0, 47, 67, 1.0),
           Color.fromRGBO(0, 47, 67, 1.0)
         ])),
         padding: EdgeInsets.all(5.0),
@@ -292,8 +345,8 @@ class _CollectPageState extends State<CollectPage>
               child: Padding(
                 padding: EdgeInsets.all(5.0),
                 child: Text(
-                  'Último pago: ${widget.person.usrMesFac}',
-                  style: TextStyle(color: Colors.white, fontSize: 10.0),
+                  'Mes facturado: ${widget.person.usrMesFac}',
+                  style: TextStyle(color: Colors.white, fontSize: 15.0),
                 ),
               ),
             ),

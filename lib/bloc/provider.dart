@@ -25,12 +25,10 @@ class Provider extends InheritedWidget {
   bool updateShouldNotify(InheritedWidget oldWidget) => true;
 
   static LoginBloc authBloc(BuildContext context) {
-    return (context.inheritFromWidgetOfExactType(Provider) as Provider)
-        .loginBloc;
+    return (context.dependOnInheritedWidgetOfExactType<Provider>()).loginBloc;
   }
 
   static PersonBloc personsBloc(BuildContext context) {
-    return (context.inheritFromWidgetOfExactType(Provider) as Provider)
-        .personBloc;
+    return (context.dependOnInheritedWidgetOfExactType<Provider>()).personBloc;
   }
 }
