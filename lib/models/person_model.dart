@@ -16,7 +16,7 @@ class Person {
   int usrFactur;
   int usrIva;
   int usrSubtotal;
-  int usrSubsidio;
+  double usrSubsidio;
   int usrTotal;
   String crtAviso;
   String crtCorte;
@@ -68,7 +68,7 @@ class Person {
     usrFactur = json['USR_FACTUR'];
     usrIva = json['USR_IVA'];
     usrSubtotal = json['USR_SUBTOTAL'].toInt();
-    usrSubsidio = json['USR_SUBSIDIO'];
+    usrSubsidio = json['USR_SUBSIDIO'].toDouble();
     usrTotal = json['USR_TOTAL'].toInt();
     crtAviso = json['CRT_AVISO'];
     crtCorte = json['CRT_CORTE'];

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:after_init/after_init.dart';
 import 'package:flutter/services.dart';
 import 'package:prolimpia_mobile/bloc/provider.dart';
 import 'package:prolimpia_mobile/models/person_model.dart';
+import 'package:prolimpia_mobile/pages/payment_dialog.dart';
 import 'package:prolimpia_mobile/utils/custom_icon_icons.dart';
 
 class CollectPage extends StatefulWidget {
@@ -14,17 +14,7 @@ class CollectPage extends StatefulWidget {
   _CollectPageState createState() => _CollectPageState();
 }
 
-class _CollectPageState extends State<CollectPage>
-    with AfterInitMixin<CollectPage> {
-  @override
-  void didInitState() {
-    Provider.personsBloc(context).getPago(widget.person.usrNumcon).then(
-        (value) {
-      print('get payment complete');
-    }, onError: (error) {
-      print('get payment error $error');
-    });
-  }
+class _CollectPageState extends State<CollectPage> {
 
   @override
   Widget build(BuildContext context) {
@@ -77,13 +67,24 @@ class _CollectPageState extends State<CollectPage>
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(0.0)),
               borderSide: BorderSide(color: Color(0xFF015FFF), width: 1.0),
-              onPressed: () {},
+              onPressed: () async {
+                await _formDialog(context);
+              },
               child: Text("Historial"),
             )
           ],
         ),
       ),
     );
+  }
+
+  Future _formDialog(BuildContext context) async {
+    return await showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          return PaymenDialog(usrNumCon: '${widget.person.usrNumcon}');
+        });
   }
 
   Widget _appBar(BuildContext context) {
@@ -200,8 +201,8 @@ class _CollectPageState extends State<CollectPage>
                     children: <Widget>[
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child:
-                            Text('Recargo: \$ ${widget.person.usrRecargo.toStringAsFixed(2)}'),
+                        child: Text(
+                            'Recargo: \$ ${widget.person.usrRecargo.toStringAsFixed(2)}'),
                       ),
                     ],
                   ),
